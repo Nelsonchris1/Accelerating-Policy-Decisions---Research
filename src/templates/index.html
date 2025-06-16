@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COPGPT powered by CarbonNote</title>
+    <link rel="icon" href="/static/company_logo.svg" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(120deg, #e8f5e9, #c8e6c9); /* Light greenish gradient */
+      color: #2e7d32; /* Greenish text for contrast */
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    
+    
+    /* Main App Container */
+    .app-container {
+      width: 90%;
+      max-width: 1200px;
+      height: 95vh;
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease-in-out;
+    }
+    
+    .app-container:hover {
+      transform: scale(1.01);
+    }
+
+    .predefined-questions {
+      text-align: center;
+      margin: 20px auto;
+      padding: 15px;
+      background: #f8f8f8;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .predefined-questions p {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+    
+    .question-btn {
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+      padding: 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #4caf50, #2e7d32);
+      color: white;
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .question-btn:hover {
+      background: linear-gradient(90deg, #2e7d32, #4caf50);
+      transform: scale(1.05);
+    }
+    
+    
+    /* Chat Container Styles */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: linear-gradient(90deg, #1b5e20, #4caf50); /* Green gradient */
+      color: #ffffff;
+      border-bottom: 2px solid #eef2f7;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .branding {
+      display: flex;
+      align-items: center;
+    }
+    
+    .branding .logo {
+      width: 60px; /* Adjust logo size */
+      height: 60px;
+      margin-right: 15px;
+      border-radius: 50%; /* Circular background */
+      background-color:rgba(9, 9, 9, 0); /* White background for contrast */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for focus */
+      padding: 10px; /* Adds space inside the circular container */
+    }
+    
+    
+    .branding .text-container h1 {
+      font-size: 2em; /* Increased font size */
+      font-weight: 800; /* Bold for emphasis */
+      margin: 0;
+      color: #000; /* Explicit black color */
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    }
+    
+    .branding .text-container .tagline {
+      font-size: 1em;
+      font-style: italic;
+      color: #ffffff; /* White for contrast with the green header */
+      opacity: 0.8;
+    }
+    
+    .icon-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #4caf50, #388e3c); /* Green gradient */
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .icon-button i {
+      margin-right: 8px;
+    }
+    
+    .icon-button:hover {
+      background: linear-gradient(90deg, #388e3c, #4caf50);
+      transform: translateY(-2px);
+      box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chat-messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #ffffff, #e8f5e9); /* Light greenish white */
+      border-top: 3px solid #66bb6a;
+      scroll-behavior: smooth;
+      animation: fadeIn 0.5s ease-in-out;
+      white-space: pre-wrap; /* Ensures line breaks are preserved */
+      word-wrap: break-word; /* Prevents text from overflowing */
+    }
+    
+    .message {
+      display: flex;
+      margin-bottom: 15px;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .message.user {
+      justify-content: flex-end;
+    }
+    
+    .message.bot {
+      justify-content: flex-start;
+    }
+    
+    .message .bubble {
+      max-width: 70%;
+      padding: 15px 20px;
+      border-radius: 20px;
+      font-size: 1em;
+      line-height: 1.6em;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      animation: bubblePop 0.3s ease-in-out;
+    }
+    
+    .message.user .bubble {
+      background: linear-gradient(90deg, #388e3c, #1b5e20); /* User green bubble */
+      color: white;
+      text-align: right;
+    }
+    
+    .message.bot .bubble {
+      background: linear-gradient(90deg, #e8f5e9, #c8e6c9); /* Bot greenish bubble */
+      color: #2e7d32;
+      border: 1px solid #dce1e8;
+    }
+    
+    /* Chat Input Styles */
+    .chat-input {
+      display: flex;
+      padding: 20px;
+      background: linear-gradient(90deg, #ffffff, #e8f5e9); /* Light greenish white */
+      border-top: 2px solid #66bb6a;
+    }
+    
+    .chat-input textarea {
+      flex-grow: 1;
+      padding: 15px;
+      font-size: 1em;
+      border: 1px solid #dce1e8;
+      border-radius: 30px;
+      resize: none;
+      height: 50px;
+      margin-right: 10px;
+      overflow: hidden;
+      box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .chat-input textarea:focus {
+      outline: none;
+      border-color: #2e7d32;
+      box-shadow: 0px 0px 6px rgba(46, 125, 50, 0.5);
+    }
+    
+    /* Footer Styles */
+    .chat-footer {
+      padding: 15px;
+      text-align: center;
+      font-size: 0.9em;
+      background: #ffffff;
+      color: #2e7d32;
+      border-top: 1px solid #dce1e8;
+    }
+    
+    .chat-footer .contact-section a {
+      color: #388e3c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    .chat-footer .contact-section a:hover {
+      text-decoration: underline;
+      color: #66bb6a;
+    }
+    
+    /* Spinner Loader Styles */
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.6);
+      border-top: 4px solid #66bb6a;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    /* Animations */
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes bubblePop {
+      from {
+        transform: scale(0.95);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .app-container {
+        height: 100vh;
+      }
+    
+      .chat-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+      }
+    
+      .branding {
+        flex-direction: column;
+        align-items: center;
+      }
+    
+      .branding .logo {
+        width: 40px;
+        height: 40px;
+      }
+    
+      .branding .text-container h1 {
+        font-size: 1.2em;
+      }
+    
+      .chat-messages {
+        padding: 10px;
+      }
+    
+      .message .bubble {
+        max-width: 90%;
+        font-size: 0.9em;
+      }
+    
+      .chat-input {
+        padding: 10px;
+        flex-direction: column;
+      }
+    
+      .chat-input textarea {
+        font-size: 0.9em;
+        height: 40px;
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+    
+      .icon-button {
+        font-size: 0.85em;
+        padding: 8px 14px;
+        width: 100%;
+      }
+    
+      .predefined-questions {
+        margin: 5px;
+        padding: 5px;
+      }
+    
+      .question-btn {
+        font-size: 0.85em;
+        padding: 8px;
+      }
+    }
+    
+    /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+    
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <div class="chat-container">
+      <header class="chat-header">
+        <div class="branding">
+          <img src="/static/company_logo.svg" alt="CarbonNote Logo" class="logo">
+          <div class="text-container">
+            <h1>COPGPT powered by CarbonNote</h1>
+            <p class="tagline">Streamline Your Environmental Projects with AI Tools</p>
+          </div>
+        </div>
+        
+        <button class="icon-button" id="clearChatButton">
+          <i class="fas fa-trash"></i> Clear Chat
+        </button>
+      </header>
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <!-- Predefined Questions Section -->
+      <div class="predefined-questions" id="predefinedQuestions">
+        <button class="question-btn">What are the latest climate policy updates from COP29?</button>
+        <button class="question-btn">What are the biggest climate threats in 2024?</button>
+        <button class="question-btn">How can cities improve climate resilience?</button>
+        <button class="question-btn">What policies are effective for reducing industrial emissions?</button>
+      </div>
+
+      
+      <div class="chat-input">
+        <textarea id="userInput" placeholder="Hi, How can i assist you? .."></textarea>
+        <button id="sendButton" class="icon-button">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </div>
+      <footer class="chat-footer">
+        <div class="contact-section">
+          For additional support, contact our experts at
+          <a href="mailto:info@@carbonnote.ai">info@carbonnote.ai</a> or explore our
+          <a href="https://www.carbonnote.ai/" target="_blank">Visit Our Website</a>.
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
+
+
+<script>
+  // Select DOM elements
+  const chatMessages = document.getElementById("chatMessages");
+  const userInput = document.getElementById("userInput");
+  const sendButton = document.getElementById("sendButton");
+  const clearChatButton = document.getElementById("clearChatButton");
+  const predefinedQuestions = document.getElementById("predefinedQuestions");
+  const questionButtons = document.querySelectorAll(".question-btn");
+
+  let chatHistory = [];
+
+  // Function to add a message to the chat
+  function addMessage(sender, message) {
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", sender);
+    messageElement.innerHTML = `<div class="bubble">${message}</div>`;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    chatHistory.push({ sender, message });
+  }
+
+  // Function to send a message
+  async function sendMessage(e) {
+    e.target.disabled = true;
+    const message = userInput.value.trim();
+    if (message === "") return;
+
+    addMessage("user", message);
+    userInput.value = "";
+    predefinedQuestions.style.display = "none"; // Hide predefined questions after user starts chat
+
+    // Show a loading spinner
+    const loadingMessage = document.createElement("div");
+    loadingMessage.classList.add("message", "bot");
+    loadingMessage.innerHTML = `<div class="bubble"><div class="spinner"></div></div>`;
+    chatMessages.appendChild(loadingMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Fetch the bot's response
+    let response = await fetch("/chat", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ query: message })
+    });
+    response = await response.json();
+
+    chatMessages.removeChild(loadingMessage);
+    addMessage("bot", response);
+
+    e.target.disabled = false;
+  }
+
+  // Function to populate input with predefined question and auto-send
+  function handleQuestionClick(event) {
+    const selectedQuestion = event.target.innerText;
+    userInput.value = selectedQuestion;
+    sendButton.click(); // Simulate send button click
+  }
+
+  // Hide predefined questions when user starts typing
+  userInput.addEventListener("input", () => {
+    predefinedQuestions.style.display = "none";
+  });
+
+  // Attach event listeners to question buttons
+  questionButtons.forEach((button) => {
+    button.addEventListener("click", handleQuestionClick);
+  });
+
+  // Clear chat function
+  function clearChat() {
+    chatMessages.innerHTML = "";
+    chatHistory = [];
+    predefinedQuestions.style.display = "block"; // Show predefined questions again
+  }
+
+  // Attach event listeners
+  sendButton.addEventListener("click", sendMessage);
+  userInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage(event);
+    }
+  });
+  clearChatButton.addEventListener("click", clearChat);
+</script>
+
+</body>
+</html>
