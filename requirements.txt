@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
+langchain-community
+langchain-openai
+langchain-core
+openai
+crewai 
+crewai-tools
